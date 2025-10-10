@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 30 01:44:07 2025
+
+@author: Emma Paulson
+"""
+
+from moviepy.editor import VideoFileClip
+
+def convert_hevc_to_mp4(input_path, output_path):
+    """
+    Converts an HEVC video to MP4 using MoviePy.
+    
+    This section of code is from a sample of how to use ffmpeg from 
+    AI Overview a source for the code was not provided. The direct serch used
+    was 'how to convert hevc to mp4 in python code using moviepy'
+    """
+    try:
+        clip = VideoFileClip(input_path)
+        clip.write_videofile(output_path, codec="libx264") # Specify H.264 codec
+        print(f"Successfully converted '{input_path}' to '{output_path}'")
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+        
+#Get the file path for the video to be analyzed, and where the video will be 
+#stored
+input_video = input('video file path: ')
+output_video = input('video name: ')+'.mp4' # Desired output MP4 file
+
+convert_hevc_to_mp4(input_video, output_video)
