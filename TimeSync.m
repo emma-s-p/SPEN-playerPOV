@@ -1,7 +1,6 @@
 function [T0] = TimeSync(audio1, audio2)
 %TimeSync finds the time stamp in the longer video that the audio syncs up.
-r = 1000; %testing range
-error = 10E-05; %error test
+error = 10E-3; %error test
 
 %get the audio files in a readable format
 [a1, a1_Fs] = audioread(audio1);
@@ -13,19 +12,28 @@ N2 = length(a2);
 
 %seperate the audio files by size
 long = a1;
-L_F = a1_Fs;
+Fs = a1_Fs;
 short = a2;
-N = N1;
+N = N2;
 if N1 < N2
     long = a2;
     short = a1;
-    L_F = a2_Fs;
-    N = N2;
+    Fs = a2_Fs;
+    N = N1;
 end
 
+[cL, lags_L] = xcorr(long(:,1),short(:,1));
+[cR, lags_R] = xcorr(long(:,2),short(:,2));
+
+[na, match_i] = max(abs(cL));
+
+lag_match = lags_L(match_i);
+
+
+r = floor((1/100)*N); %testing range
 %create a array to store the audio differences 
 dif = zeros(r,2);
-for i = 1:N-r
+for i = lag_match-r:lag_match+r
     for cnt = 1:r
         long_i = i+cnt-1;
         dif(cnt,1) = long_i;
@@ -35,7 +43,9 @@ for i = 1:N-r
     end
 %check if the frequency is the same
     if max(dif(:,2)) < error
-        T0 = i/L_F;
+        [na, t] = max(dif(:,2));
+         T = dif(t,1);
+         T0 = T/Fs;
         if i == 1
             T0 = 0;
         end
@@ -43,5 +53,5 @@ for i = 1:N-r
     end
     T0 = "No audio match availible";
 end
-disp(T0);
+disp(T0+"s");
 end
