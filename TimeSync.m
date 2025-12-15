@@ -10,6 +10,10 @@ N2 = length(a2);
 A2_L = N2/a2_Fs;
 
 %Normalize both of the audiofiles to each other
+figure()
+plot(a1)
+hold on
+plot(a2)
 
 min_val = min([a1;a2]);
 max_val = max([a1;a2]);
@@ -32,6 +36,11 @@ if N1 < N2
     N = N1;
 end
 
+figure()
+plot(long)
+hold on
+plot(short)
+
 [cL, lags_L] = xcorr(long(:,1),short(:,1));
 [cR, lags_R] = xcorr(long(:,2),short(:,2));
 
@@ -41,11 +50,27 @@ error = max(abs(cR))*1E-6;
 
 lag_match = lags_L(match_i);
 
-
 r = floor((1/100)*N); %testing range
-%create a array to store the audio differences 
+
+%create a array to store the audio differences
 dif = zeros(r,2);
-for i = lag_match-r:lag_match+r
+
+%make sure the search range is actually viable
+begin = lag_match-r;
+finish = lag_match+r;
+if lag_match <= r
+    begin = lag_match - floor((1/50)*lag_match);
+    if begin <= 0
+        begin = 1;
+    end 
+    r = finish - begin;
+end
+if finish >= N
+    finish = N;
+    r = finish - begin;
+end
+
+for i = begin:finish
     for cnt = 1:r
         long_i = i+cnt-1;
         dif(cnt,1) = long_i;
@@ -67,3 +92,4 @@ for i = lag_match-r:lag_match+r
 end
 disp(T0+"s");
 end
+
